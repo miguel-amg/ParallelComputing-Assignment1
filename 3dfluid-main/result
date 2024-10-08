@@ -1,0 +1,79 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 38K of event 'cycles:P'
+# Event count (approx.): 39071638365
+#
+# Overhead  Command    Shared Object      Symbol                                                                       
+# ........  .........  .................  .............................................................................
+#
+    81.15%  fluid_sim  fluid_sim          [.] lin_solve(int, int, int, int, float*, float*, float, float)
+     9.63%  fluid_sim  fluid_sim          [.] advect(int, int, int, int, float*, float*, float*, float*, float*, float)
+     4.57%  fluid_sim  fluid_sim          [.] project(int, int, int, float*, float*, float*, float*, float*)
+     3.27%  fluid_sim  fluid_sim          [.] set_bnd(int, int, int, int, float*)
+     1.13%  fluid_sim  fluid_sim          [.] add_source(int, int, int, float*, float*, float)
+     0.02%  fluid_sim  [kernel.kallsyms]  [k] native_write_msr
+     0.02%  fluid_sim  [kernel.kallsyms]  [k] native_irq_return_iret
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] timekeeping_advance
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] mas_walk
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] __raw_spin_lock_irqsave
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] mas_empty_area_rev
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] __update_load_avg_se
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] __sysvec_apic_timer_interrupt
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] sync_regs
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] _raw_spin_lock
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] native_sched_clock
+     0.01%  fluid_sim  [kvm]              [k] pvclock_gtod_notify
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] perf_adjust_freq_unthr_context
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] sched_clock_cpu
+     0.01%  fluid_sim  [kernel.kallsyms]  [k] timerqueue_del
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] hrtimer_active
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] nohz_balancer_kick
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] fpregs_assert_state_consistent
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] irq_enter_rcu
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] __hrtimer_run_queues
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] tick_do_update_jiffies64
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] tick_program_event
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] update_vsyscall
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] rcu_sched_clock_irq
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] update_cfs_group
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] task_tick_fair
+     0.00%  fluid_sim  fluid_sim          [.] sum_density()
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] timerqueue_add
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] cpuacct_account_field
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] lapic_next_deadline
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] _compound_head
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] ktime_get
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] cpuacct_charge
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] read_tsc
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] task_mm_cid_work
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] arch_scale_freq_tick
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] reweight_entity
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] decay_load
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] mem_cgroup_handle_over_high
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] update_rq_clock
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] irqentry_exit_to_user_mode
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] call_function_single_prep_ipi
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] x2apic_send_IPI
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] idle_cpu
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] timekeeping_update
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] update_fast_timekeeper
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] llist_add_batch
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] update_min_vruntime
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] do_nocb_deferred_wakeup.isra.0
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] update_load_avg
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] account_user_time
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] native_apic_msr_eoi
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] task_tick_mm_cid
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] __update_load_avg_cfs_rq
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] update_sd_lb_stats.constprop.0
+     0.00%  fluid_sim  [kernel.kallsyms]  [k] security_bprm_committed_creds
+     0.00%  perf-exec  [kernel.kallsyms]  [k] native_sched_clock
+     0.00%  perf-exec  [kernel.kallsyms]  [k] native_write_msr
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#
