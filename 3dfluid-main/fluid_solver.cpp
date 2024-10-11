@@ -60,11 +60,12 @@ void lin_solve(int M, int N, int O, int b, float *x, float *x0, float a,
   int N2=N+2;
   int M2xN2=M2*N2;
   for (int l = 0; l < LINEARSOLVERTIMES; l++) {
-    for (int i = 1; i <= M; i++) {
+    for (int k = 1; k <= O; k++) {
+      int M2xN2k=M2xN2*k;
       for (int j = 1; j <= N; j++) {
-        int ixj=M2*j+i;
-        for (int k = 1; k <= O; k++) {
-          int ixjxk= ixj + M2xN2 * k;
+        int jxk=M2xN2k+ M2*j;
+        for (int i = 1; i <= M; i++) {
+          int ixjxk= jxk + i;
           x[ixjxk] = (x0[ixjxk] +
                             a * (x[ixjxk-1] + x[ixjxk+1] +
                                  x[ixjxk-M2] + x[ixjxk+M2] +
