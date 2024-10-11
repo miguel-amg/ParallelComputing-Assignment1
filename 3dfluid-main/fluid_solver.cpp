@@ -56,27 +56,25 @@ void set_bnd(int M, int N, int O, int b, float *x) {
 // Linear solve for implicit methods (diffusion)
 void lin_solve(int M, int N, int O, int b, float *x, float *x0, float a,
                float c) {
-  int M2=M+2; 
-  int N2=N+2;
-  int M2xN2=M2*N2;
-  float c_recip=1.0f/c;
-  for (int l = 0; l < LINEARSOLVERTIMES; l++) {
-    for (int k = 1; k <= O; k++) {
-      int M2xN2k=M2xN2*k;
-      for (int j = 1; j <= N; j++) {
-        int jxk=M2xN2k+ M2*j;
+    int M2 = M + 2;
+    int N2 = N + 2;
+    int M2xN2 = M2 * N2;
+    float c_recip = 1.0f / c;
+    for (int l = 0; l < LINEARSOLVERTIMES; l++) {
         for (int i = 1; i <= M; i++) {
-          int ixjxk= jxk + i;
-          x[ixjxk] = (x0[ixjxk] +
-                            a * (x[ixjxk-1] + x[ixjxk+1] +
-                                 x[ixjxk-M2] + x[ixjxk+M2] +
-                                 x[ixjxk-M2xN2] + x[ixjxk+M2xN2])) * c_recip;
+            for (int j = 1; j <= N; j++) {
+                int j_offset = i + j * M2;
+                for (int k = 1; k <= O; k++) {
+                    int idx = j_offset + k * M2xN2;
+                    x[idx] = (x0[idx] + a * (x[idx - 1] + x[idx + 1] + x[idx - M2] + x[idx + M2] +
+                                             x[idx - M2xN2] + x[idx + M2xN2])) * c_recip;
+                }
+            }
         }
-      }
+        set_bnd(M, N, O, b, x);
     }
-    set_bnd(M, N, O, b, x);
-  }
 }
+
 
 // Diffusion step (uses implicit method)
 void diffuse(int M, int N, int O, int b, float *x, float *x0, float diff,
