@@ -54,19 +54,30 @@ void set_bnd(int M, int N, int O, int b, float *x) {
 }
 
 // Linear solve for implicit methods (diffusion)
-void lin_solve(int M, int N, int O, int b, float *x, float *x0, float a,
-               float c) {
+void lin_solve(int M, int N, int O, int b, float *x, const float *x0, float a, float c) {
     int M2 = M + 2;
     int N2 = N + 2;
     int M2xN2 = M2 * N2;
+    float inv_c = 1.0f / c;
+    
     for (int l = 0; l < LINEARSOLVERTIMES; l++) {
-        for (int i = 1; i <= M; i++) {
+        for (int k = 1; k <= O; k++) {
+            int k_offset = k * M2xN2;
             for (int j = 1; j <= N; j++) {
-                int j_offset = i + j * M2;
-                for (int k = 1; k <= O; k++) {
-                    int idx = j_offset + k * M2xN2;
-                    x[idx] = (x0[idx] + a * (x[idx - 1] + x[idx + 1] + x[idx - M2] + x[idx + M2] +
-                                             x[idx - M2xN2] + x[idx + M2xN2])) /c;
+                int jk_offset = k_offset + j * M2;
+                for (int i = 1; i <= M; i++) {
+                    int idx = jk_offset + i;
+                    
+                    // Acesso aos valores adjacentes
+                    float x_left = x[idx - 1];
+                    float x_right = x[idx + 1];
+                    float x_down = x[idx - M2];
+                    float x_up = x[idx + M2];
+                    float x_back = x[idx - M2xN2];
+                    float x_front = x[idx + M2xN2];
+                    
+                    // Atualização de x[idx]
+                    x[idx] = (x0[idx] + a * (x_left + x_right + x_down + x_up + x_back + x_front)) * inv_c;
                 }
             }
         }
@@ -86,14 +97,23 @@ void diffuse(int M, int N, int O, int b, float *x, float *x0, float diff,
 // Advection step (uses velocity field to move quantities)
 void advect(int M, int N, int O, int b, float *d, float *d0, float *u, float *v,
             float *w, float dt) {
-  float dtX = dt * M, dtY = dt * N, dtZ = dt * O;
+  float dtX = dt * M;
+  float dtY = dt * N;
+  float dtZ = dt * O;
 
-  for (int i = 1; i <= M; i++) {
+
+  for (int k = 1; k <= O; k++) {
     for (int j = 1; j <= N; j++) {
-      for (int k = 1; k <= O; k++) {
-        float x = i - dtX * u[IX(i, j, k)];
-        float y = j - dtY * v[IX(i, j, k)];
-        float z = k - dtZ * w[IX(i, j, k)];
+      for (int i = 1; i <= M; i++) {
+        int idx = IX(i, j, k);
+        float u_val = u[idx];
+        float v_val = v[idx];
+        float w_val = w[idx];
+
+        // Cálculo das posições retroativas
+        float x = i - dtX * u_val;
+        float y = j - dtY * v_val;
+        float z = k - dtZ * w_val;
 
         // Clamp to grid boundaries
         if (x < 0.5f)
@@ -132,15 +152,20 @@ void advect(int M, int N, int O, int b, float *d, float *d0, float *u, float *v,
 // divergence-free)
 void project(int M, int N, int O, float *u, float *v, float *w, float *p,
              float *div) {
-  for (int i = 1; i <= M; i++) {
+  
+  const float max= -0.5f/MAX(M, MAX(N, O));
+  for (int k = 1; k <= O; k++) {
     for (int j = 1; j <= N; j++) {
-      for (int k = 1; k <= O; k++) {
-        div[IX(i, j, k)] =
-            -0.5f *
-            (u[IX(i + 1, j, k)] - u[IX(i - 1, j, k)] + v[IX(i, j + 1, k)] -
-             v[IX(i, j - 1, k)] + w[IX(i, j, k + 1)] - w[IX(i, j, k - 1)]) /
-            MAX(M, MAX(N, O));
-        p[IX(i, j, k)] = 0;
+      int idx_base = IX(0, j, k);
+      for (int i = 1; i <= M; i++) {
+        int idx = idx_base + i;
+
+        float du=u[idx + 1] - u[idx - 1];
+        float dv= v[idx + (M + 2)] - v[idx - (M + 2)];
+        float dw= w[idx + (M + 2) * (N + 2)] - w[idx - (M + 2) * (N + 2)];
+
+        div[idx]= max * (du + dv + dw);
+        p[idx] = 0;
       }
     }
   }
@@ -149,12 +174,14 @@ void project(int M, int N, int O, float *u, float *v, float *w, float *p,
   set_bnd(M, N, O, 0, p);
   lin_solve(M, N, O, 0, p, div, 1, 6);
 
-  for (int i = 1; i <= M; i++) {
+  for (int k = 1; k <= O; k++) {
     for (int j = 1; j <= N; j++) {
-      for (int k = 1; k <= O; k++) {
-        u[IX(i, j, k)] -= 0.5f * (p[IX(i + 1, j, k)] - p[IX(i - 1, j, k)]);
-        v[IX(i, j, k)] -= 0.5f * (p[IX(i, j + 1, k)] - p[IX(i, j - 1, k)]);
-        w[IX(i, j, k)] -= 0.5f * (p[IX(i, j, k + 1)] - p[IX(i, j, k - 1)]);
+      int idx_base = IX(0, j, k);
+      for (int i = 1; i <= M; i++) {
+        int idx = idx_base + i;
+        u[idx] -= 0.5f * (p[idx + 1] - p[idx - 1]);
+        v[idx] -= 0.5f * (p[idx + (M + 2)] - p[idx - (M + 2)]);
+        w[idx] -= 0.5f * (p[idx + (M + 2) * (N + 2)] - p[idx - (M + 2) * (N + 2)]);
       }
     }
   }
@@ -179,16 +206,15 @@ void vel_step(int M, int N, int O, float *u, float *v, float *w, float *u0,
   add_source(M, N, O, u, u0, dt);
   add_source(M, N, O, v, v0, dt);
   add_source(M, N, O, w, w0, dt);
-  SWAP(u0, u);
-  diffuse(M, N, O, 1, u, u0, visc, dt);
-  SWAP(v0, v);
-  diffuse(M, N, O, 2, v, v0, visc, dt);
-  SWAP(w0, w);
-  diffuse(M, N, O, 3, w, w0, visc, dt);
-  project(M, N, O, u, v, w, u0, v0);
-  SWAP(u0, u);
-  SWAP(v0, v);
-  SWAP(w0, w);
+
+  diffuse(M, N, O, 1, u0, u, visc, dt);
+
+  diffuse(M, N, O, 2, v0, v, visc, dt);
+
+  diffuse(M, N, O, 3, w0, w, visc, dt);
+  project(M, N, O, u0, v0, w0, u, v);
+
+
   advect(M, N, O, 1, u, u0, u0, v0, w0, dt);
   advect(M, N, O, 2, v, v0, u0, v0, w0, dt);
   advect(M, N, O, 3, w, w0, u0, v0, w0, dt);
