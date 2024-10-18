@@ -1,5 +1,6 @@
 #include "fluid_solver.h"
 #include <cmath>
+#include <string.h>
 
 #define IX(i, j, k) ((i) + (M + 2) * (j) + (M + 2) * (N + 2) * (k))
 #define SWAP(x0, x)                                                            \
@@ -59,8 +60,31 @@ void lin_solve(int M, int N, int O, int b, float *x, const float *x0, float a, f
     int N2 = N + 2;
     int M2xN2 = M2 * N2;
     float inv_c = 1.0f / c;
+    float inv2= a*inv_c;
+    int size=IX(M,N,O);
+    float x_new[size];
+  
+    
     
     for (int l = 0; l < LINEARSOLVERTIMES; l++) {
+      memcpy(x_new,x,size);
+      for (int k = 1; k <= O; k++) {
+            int k_offset = k * M2xN2;
+            for (int j = 1; j <= N; j++) {
+                int jk_offset = k_offset + j * M2;
+                for (int i = 1; i <= M; i++) {
+                    int idx = jk_offset + i;
+                    
+                    float x_right = x[idx + 1];
+                    float x_up = x[idx + M2];
+                    float x_front = x[idx + M2xN2];
+                    
+                    // Atualização de x[idx]
+                    x_new[idx] = (x0[idx]+  a* ( x_right + x_up +  x_front)) * inv_c;
+                }
+            }
+        }
+
         for (int k = 1; k <= O; k++) {
             int k_offset = k * M2xN2;
             for (int j = 1; j <= N; j++) {
@@ -70,14 +94,11 @@ void lin_solve(int M, int N, int O, int b, float *x, const float *x0, float a, f
                     
                     // Acesso aos valores adjacentes
                     float x_left = x[idx - 1];
-                    float x_right = x[idx + 1];
                     float x_down = x[idx - M2];
-                    float x_up = x[idx + M2];
                     float x_back = x[idx - M2xN2];
-                    float x_front = x[idx + M2xN2];
                     
                     // Atualização de x[idx]
-                    x[idx] = (x0[idx] + a * (x_left + x_right + x_down + x_up + x_back + x_front)) * inv_c;
+                    x[idx] = x_new[idx] + ((x_left + x_down + x_back)* inv2);
                 }
             }
         }

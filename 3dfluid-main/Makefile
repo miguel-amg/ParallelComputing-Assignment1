@@ -1,4 +1,4 @@
-CPP = g++ -Wall  -O2 -Ofast -march=native -ffast-math -funroll-loops -fomit-frame-pointer -flto
+CPP = g++ -Wall  -O2 -Ofast -march=native -ffast-math -funroll-loops -fomit-frame-pointer -flto -mavx
 SRCS = main.cpp fluid_solver.cpp EventManager.cpp
 
 all:
