@@ -1,5 +1,6 @@
-CPP = g++ -Wall -O2 -Ofast -pg -march=native -ffast-math -funroll-loops -mavx
+CPP = g++ -Wall -O3 -Ofast -pg 
 SRCS = main.cpp fluid_solver.cpp EventManager.cpp
+TARGET= ../fluid_sim
 
 all:
 	$(CPP) $(SRCS) -o fluid_sim
@@ -9,5 +10,5 @@ assembly:
 	
 clean:
 	@echo Cleaning up...
-	@rm fluid
+	@rm -f ../fluid_sim
 	@echo Done.
